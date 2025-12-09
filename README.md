@@ -81,7 +81,7 @@ I separated routes, controllers, models, and middleware to keep the project scal
 
 ---
 
-##📌 4. How I Built the Project (Step by Step)
+## 📌 4. How I Built the Project (Step by Step)
 
 ✅ Step 1: Express Server Setup
 
@@ -239,7 +239,7 @@ Optionally, we can persist matches in a Match model later.
 
 ---
 
-##📌 5. Architecture
+## 📌 5. Architecture
 flowchart LR
     subgraph Client
         UI[DevTinder Frontend (React / Any UI)]
@@ -265,7 +265,7 @@ flowchart LR
 
 ---
 
-##📌 6. API Documentation
+## 📌 6. API Documentation
 
 Base URL (local):
 
@@ -405,7 +405,7 @@ Success Response:
 
 ---
 
-##📌 7. Postman Collection
+## 📌 7. Postman Collection
 
 To make testing easier, create a file named:
 
@@ -553,8 +553,8 @@ Put token into the Postman environment variable {{token}}
 Use Feed / Like / Dislike requests
 
 ---
-
-##📌 8. Frontend Plan (How a UI Can Use This Backend)
+ 
+## 📌 8. Frontend Plan (How a UI Can Use This Backend)
 
 This is a simple React-based plan to pair with DevTinder backend.
 
@@ -616,7 +616,7 @@ If missing → redirect to /login
 
 ---
 
-##📌 9. Environment Variables
+## 📌 9. Environment Variables
 
 Create a .env file in the root:
 
@@ -626,7 +626,7 @@ JWT_SECRET=your_super_secret_key
 
 ---
 
-##📌 10. Running the Project
+## 📌 10. Running the Project
 # Clone the repo
 git clone https://github.com/Ruthvik2000/DevTinder-Project.git
 cd DevTinder-Project
@@ -647,7 +647,7 @@ http://localhost:5000/api
 
 ---
 
-##📌 11. Future Improvements
+## 📌 11. Future Improvements
 
 Add real-time chat using Socket.io
 
