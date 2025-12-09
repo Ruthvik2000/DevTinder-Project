@@ -2,9 +2,9 @@
 
 # 🧑‍💻 DevTinder – Developer Matching Platform
 
-DevTinder is a backend project built using **Node.js, Express, and MongoDB**, where developers can discover each other, like/dislike profiles, and get matched when both sides like each other.
+DevTinder is a **MERN-stack** web application that enables developers to **discover, connect, and collaborate—** similar to Tinder, but built specifically for the **developer community**. Users can **create profiles, browse other developers, send connection requests, and manage their matches**.
 
-This README explains the project **step by step exactly as I built it** – architecture, APIs, logic, and how a frontend can talk to it.
+This repo provides the backend built with Node.js, Express, and MongoDB, working alongside a React-based frontend to form the full MERN-powered DevTinder platform.
 
 ---
 
