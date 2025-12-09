@@ -38,14 +38,14 @@ While building this project, the focus was on:
 ## 📌 2. Tech Stack
 
 | Technology      | Purpose                                  |
-|----------------|------------------------------------------|
-| **Node.js**    | JavaScript runtime for backend           |
-| **Express.js** | Web framework for routing & middleware   |
-| **MongoDB**    | NoSQL database                           |
-| **Mongoose**   | ODM to model MongoDB data                |
-| **JWT**        | Authentication tokens                    |
-| **bcryptjs**   | Password hashing                         |
-| **dotenv**     | Environment variable management          |
+|----------------|-------------------------------------------|
+| **Node.js**    | JavaScript runtime for backend            |
+| **Express.js** | Web framework for routing & middleware    |
+| **MongoDB**    | NoSQL database                            |
+| **Mongoose**   | ODM to model MongoDB data                 |
+| **JWT**        | Authentication tokens                     |
+| **bcryptjs**   | Password hashing                          |
+| **dotenv**     | Environment variable management           |
 
 ---
 
@@ -76,180 +76,203 @@ DevTinder-Project/
     └── authRoutes.js
     └── userRoutes.js
     └── matchRoutes.js
+```
 
 I separated routes, controllers, models, and middleware to keep the project scalable and easy to maintain.
 
 ---
 
-# 📌 4. How I Built the Project (Step by Step)
+## 📌 4. How I Built the Project (Step by Step)
 
-✅ Step 1: Express Server Setup
+### ✅ Step 1: Express Server Setup
 
-Created server.js
+Created `server.js`.
 
 Imported Express and set up:
 
-app.use(express.json()) for JSON body parsing
+```js
+app.use(express.json()); // for JSON body parsing
+```
 
-Mounted routes under /api
+Mounted routes under `/api`.
 
-Connected to MongoDB using a separate config/db.js
+Connected to MongoDB using a separate `config/db.js`.
 
-Started the server on process.env.PORT || 5000
+Started the server on:
 
-✅ Step 2: Database Connection (MongoDB)
+```js
+const PORT = process.env.PORT || 5000;
+```
 
-In config/db.js:
+---
 
-Used mongoose.connect(process.env.MONGO_URI)
+### ✅ Step 2: Database Connection (MongoDB)
 
-If connection fails, the app exits early
+In `config/db.js`:
 
-This guarantees the app doesn't run without DB
+```js
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  });
+```
 
-✅ Step 3: User Model (Core of DevTinder)
+If connection fails, the app exits early.  
+This guarantees the app doesn't run without DB.
 
-In models/User.js, I designed a schema that represents a developer:
+---
 
-Auth fields:
+### ✅ Step 3: User Model (Core of DevTinder)
 
-name
+In `models/User.js`, I designed a schema that represents a developer.
 
-email
+**Auth fields:**
 
-password (hashed)
+- `name`
+- `email`
+- `password` (hashed)
 
-Dev profile fields:
+**Dev profile fields:**
 
-role (Frontend / Backend / Fullstack / etc.)
+- `role` (Frontend / Backend / Fullstack / etc.)
+- `skills` (array of strings)
+- `experienceYears`
+- `location`
+- `bio`
+- `github`
+- `linkedin`
 
-skills (array of strings)
+**Swipe system fields:**
 
-experienceYears
+- `likedUsers` → array of user IDs liked by this user  
+- `dislikedUsers` → array of user IDs disliked by this user  
 
-location
+This schema is the heart of the matching logic.
 
-bio
+---
 
-github, linkedin
+### ✅ Step 4: Authentication (Register & Login)
 
-Swipe system fields:
+I implemented two main routes in `authRoutes.js` and `authController.js`:
 
-likedUsers → array of user IDs liked by this user
+#### 🔹 Register
 
-dislikedUsers → array of user IDs disliked by this user
+- Validates required fields  
+- Checks if email already exists  
+- Hashes password using `bcryptjs`  
+- Saves user into DB  
+- Generates a JWT and returns it along with minimal user info  
 
-This is the heart of the matching logic.
+#### 🔹 Login
 
-✅ Step 4: Authentication (Register & Login)
-
-I implemented two main routes in authRoutes.js and authController.js:
-
-🔹 Register
-
-Validates required fields
-
-Checks if email already exists
-
-Hashes password using bcryptjs
-
-Saves user into DB
-
-Generates a JWT and returns it along with minimal user info
-
-🔹 Login
-
-Validates email and password
-
-Verifies password using bcrypt.compare
-
-Generates a JWT on success
-
-Returns token + basic user info
+- Validates email and password  
+- Verifies password using `bcrypt.compare`  
+- Generates a JWT on success  
+- Returns token + basic user info  
 
 The client uses this token for all protected routes.
 
-✅ Step 5: Auth Middleware
+---
 
-In middleware/authMiddleware.js:
+### ✅ Step 5: Auth Middleware
 
-Extracts the token from Authorization: Bearer <token> header
+In `middleware/authMiddleware.js`:
 
-Verifies the token using jwt.verify
-
-If valid, attaches req.user = { id: <userId> }
-
-If invalid, returns 401 Unauthorized
+- Extracts the token from `Authorization: Bearer <token>` header  
+- Verifies the token using `jwt.verify`  
+- If valid, attaches `req.user = { id: <userId> }`  
+- If invalid, returns **401 Unauthorized**  
 
 This middleware is applied to routes like feed, like, dislike.
 
-✅ Step 6: Developer Feed API
+---
 
-Goal: Show potential dev profiles that the current user hasn’t liked/disliked yet.
+### ✅ Step 6: Developer Feed API
 
-Logic:
+**Goal:** Show potential dev profiles that the current user hasn’t liked/disliked yet.
 
-Find current user (using req.user.id)
+**Logic:**
 
-Query User collection and exclude:
+1. Find current user using `req.user.id`
+2. Query `User` collection and exclude:
+   - The current user (`_id: { $ne: me._id }`)
+   - Users in `me.likedUsers`
+   - Users in `me.dislikedUsers`
+3. Return the remaining users as feed
 
-The current user (_id: { $ne: me._id })
+---
 
-Users in me.likedUsers
+### ✅ Step 7: Like / Dislike Logic
 
-Users in me.dislikedUsers
+#### ✔ Like
 
-Return the remaining users as feed
+Current user sends:
 
-✅ Step 7: Like / Dislike Logic
-✔ Like
+```http
+POST /api/users/:id/like
+```
 
-Current user sends POST /api/users/:id/like
+**Logic:**
 
-Logic:
+- Add target `id` to `likedUsers` (if not already present)  
+- Check if target user has already liked me  
+- If yes → mark `isMatch = true`  
+- Return JSON:  
 
-Add target id to likedUsers (if not already present)
+```json
+{ "message": "Liked", "isMatch": true/false }
+```
 
-Check if target user has already liked me
+#### ✔ Dislike
 
-If yes → mark isMatch = true
+Current user sends:
 
-Return JSON: { message: "Liked", isMatch: true/false }
+```http
+POST /api/users/:id/dislike
+```
 
-✔ Dislike
+**Logic:**
 
-Current user sends POST /api/users/:id/dislike
+- Add target `id` to `dislikedUsers` (if not already present)  
+- Return simple success message  
 
-Logic:
+---
 
-Add target id to dislikedUsers (if not already present)
-
-Return simple success message
-
-✅ Step 8: Match Concept
+### ✅ Step 8: Match Concept
 
 A match is created when:
 
-User A likes User B
+- User A likes User B  
+- **and** User B has already liked User A  
 
-User B has already liked User A
-
-This logic is handled inside the like API.
-Optionally, we can persist matches in a Match model later.
+This logic is handled inside the like API.  
+Optionally, we can persist matches in a `Match` model later.
 
 ---
 
 ## 📌 5. Architecture
+
+```mermaid
 flowchart LR
     subgraph Client
         UI[DevTinder Frontend (React / Any UI)]
     end
 
     subgraph Server[DevTinder Backend (Node.js + Express)]
-        AR[Auth Routes\n/register\n/login]
-        UR[User Routes\n/feed\n/:id/like\n/:id/dislike]
-        MW[Auth Middleware\n(JWT Verify)]
-        CTRL[Controllers\n(auth, user, match)]
+        AR[Auth Routes
+/register
+/login]
+        UR[User Routes
+/feed
+/:id/like
+/:id/dislike]
+        MW[Auth Middleware
+(JWT Verify)]
+        CTRL[Controllers
+(auth, user, match)]
     end
 
     subgraph DB[(MongoDB)]
@@ -262,6 +285,7 @@ flowchart LR
     AR --> CTRL --> UCOL
     UR --> CTRL --> UCOL
     CTRL --> MCOL
+```
 
 ---
 
@@ -269,16 +293,22 @@ flowchart LR
 
 Base URL (local):
 
+```text
 http://localhost:5000/api
+```
 
-6.1 Authentication
-🔐 Register User
+---
 
-URL: POST /auth/register
-Auth: Public
+### 6.1 Authentication
 
-Request Body:
+#### 🔐 Register User
 
+**URL:** `POST /auth/register`  
+**Auth:** Public  
+
+**Request Body:**
+
+```json
 {
   "name": "Alice Developer",
   "email": "alice@example.com",
@@ -289,10 +319,11 @@ Request Body:
   "location": "Phoenix, AZ",
   "bio": "Fullstack dev who loves building side projects"
 }
+```
 
+**Success Response:**
 
-Success Response:
-
+```json
 {
   "token": "<jwt_token>",
   "user": {
@@ -301,22 +332,27 @@ Success Response:
     "email": "alice@example.com"
   }
 }
+```
 
-🔐 Login
+---
 
-URL: POST /auth/login
-Auth: Public
+#### 🔐 Login
 
-Request Body:
+**URL:** `POST /auth/login`  
+**Auth:** Public  
 
+**Request Body:**
+
+```json
 {
   "email": "alice@example.com",
   "password": "StrongPass123"
 }
+```
 
+**Success Response:**
 
-Success Response:
-
+```json
 {
   "token": "<jwt_token>",
   "user": {
@@ -325,23 +361,28 @@ Success Response:
     "email": "alice@example.com"
   }
 }
+```
 
-6.2 User Feed & Swipe
+---
 
-All endpoints below require Authorization: Bearer <jwt_token>.
+### 6.2 User Feed & Swipe
 
-👥 Get Feed
+> All endpoints below require `Authorization: Bearer <jwt_token>`.
 
-URL: GET /users/feed
-Auth: Bearer Token
+#### 👥 Get Feed
 
-Headers:
+**URL:** `GET /users/feed`  
+**Auth:** Bearer Token  
 
+**Headers:**
+
+```text
 Authorization: Bearer <jwt_token>
+```
 
+**Success Response:**
 
-Success Response:
-
+```json
 [
   {
     "_id": "676def1234...",
@@ -357,51 +398,63 @@ Success Response:
     "createdAt": "2025-12-08T12:34:56.789Z"
   }
 ]
+```
 
-❤️ Like a User
+---
 
-URL: POST /users/:id/like
-Auth: Bearer Token
+#### ❤️ Like a User
 
-Example: POST /users/676def1234abcd/like
+**URL:** `POST /users/:id/like`  
+**Auth:** Bearer Token  
 
-Headers:
+**Example:** `POST /users/676def1234abcd/like`
 
+**Headers:**
+
+```text
 Authorization: Bearer <jwt_token>
+```
 
+**Success Response – no match yet:**
 
-Success Response – no match yet:
-
+```json
 {
   "message": "Liked",
   "isMatch": false
 }
+```
 
+**Success Response – match created:**
 
-Success Response – match created:
-
+```json
 {
   "message": "Liked",
   "isMatch": true
 }
+```
 
-❌ Dislike a User
+---
 
-URL: POST /users/:id/dislike
-Auth: Bearer Token
+#### ❌ Dislike a User
 
-Example: POST /users/676def1234abcd/dislike
+**URL:** `POST /users/:id/dislike`  
+**Auth:** Bearer Token  
 
-Headers:
+**Example:** `POST /users/676def1234abcd/dislike`
 
+**Headers:**
+
+```text
 Authorization: Bearer <jwt_token>
+```
 
+**Success Response:**
 
-Success Response:
-
+```json
 {
   "message": "Disliked"
 }
+```
 
 ---
 
@@ -409,10 +462,13 @@ Success Response:
 
 To make testing easier, create a file named:
 
+```text
 DevTinder.postman_collection.json
+```
 
 and paste:
 
+```json
 {
   "info": {
     "name": "DevTinder API",
@@ -433,7 +489,16 @@ and paste:
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"Alice Developer\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"StrongPass123\",\n  \"role\": \"Fullstack\",\n  \"skills\": [\"Node.js\", \"React\", \"MongoDB\"],\n  \"experienceYears\": 3,\n  \"location\": \"Phoenix, AZ\",\n  \"bio\": \"Fullstack dev who loves building side projects\"\n}"
+          "raw": "{
+  "name": "Alice Developer",
+  "email": "alice@example.com",
+  "password": "StrongPass123",
+  "role": "Fullstack",
+  "skills": ["Node.js", "React", "MongoDB"],
+  "experienceYears": 3,
+  "location": "Phoenix, AZ",
+  "bio": "Fullstack dev who loves building side projects"
+}"
         },
         "url": {
           "raw": "http://localhost:5000/api/auth/register",
@@ -456,7 +521,10 @@ and paste:
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"StrongPass123\"\n}"
+          "raw": "{
+  "email": "alice@example.com",
+  "password": "StrongPass123"
+}"
         },
         "url": {
           "raw": "http://localhost:5000/api/auth/login",
@@ -536,97 +604,78 @@ and paste:
     }
   ]
 }
+```
 
+**How to use:**
 
-How to use:
-
-Open Postman
-
-Click Import → select this JSON file
-
-First call Auth – Register
-
-Then call Auth – Login, copy token
-
-Put token into the Postman environment variable {{token}}
-
-Use Feed / Like / Dislike requests
+- Open Postman  
+- Click **Import** → select this JSON file  
+- Call **Auth – Register**, then **Auth – Login**, copy `token`  
+- Put token into the Postman environment variable `{{token}}`  
+- Use Feed / Like / Dislike requests  
 
 ---
- 
+
 ## 📌 8. Frontend Plan (How a UI Can Use This Backend)
 
 This is a simple React-based plan to pair with DevTinder backend.
 
-Pages / Components
+### Pages / Components
 
-RegisterPage
+**1. RegisterPage**
 
-Inputs: name, email, password, skills (comma-separated), role, experienceYears, location, bio
+- Inputs: name, email, password, skills (comma-separated), role, experienceYears, location, bio  
+- On submit:
+  - `POST /api/auth/register`
+  - Save token → redirect to `/feed` or `/login`
 
-On submit:
+**2. LoginPage**
 
-POST /api/auth/register
+- Inputs: email, password  
+- On submit:
+  - `POST /api/auth/login`
+  - Save token in `localStorage`
+  - Redirect to `/feed`
 
-Save token → redirect to /feed or login
+**3. FeedPage**
 
-LoginPage
+- On mount:
+  - Call `GET /api/users/feed` with `Authorization: Bearer <token>`  
+- Display one profile card at a time:
+  - name, role, skills, experienceYears, location, bio  
+- Buttons:
+  - ❤️ Like → `POST /api/users/:id/like`
+  - ❌ Dislike → `POST /api/users/:id/dislike`
+- If `isMatch === true`:
+  - Show a modal/toast → “🎉 It’s a match!”
 
-Inputs: email, password
+**4. Navbar**
 
-On submit:
+- Shows logged-in user’s name  
+- Logout button → clears token and redirects to `/login`
 
-POST /api/auth/login
+**5. ProtectedRoute**
 
-Save token in localStorage
-
-Redirect to /feed
-
-FeedPage
-
-On mount:
-
-Call GET /api/users/feed with Authorization: Bearer <token>
-
-Show one profile card at a time:
-
-name, role, skills, experienceYears, location, bio
-
-Buttons:
-
-❤️ Like → POST /api/users/:id/like
-
-❌ Dislike → POST /api/users/:id/dislike
-
-If isMatch === true:
-
-Show a modal/toast → “🎉 It’s a match!”
-
-Navbar
-
-Shows logged-in user’s name
-
-Logout button → clears token and redirects to /login
-
-ProtectedRoute
-
-Wrapper that checks if token exists in localStorage
-
-If missing → redirect to /login
+- Wrapper that checks if token exists in `localStorage`  
+- If missing → redirect to `/login`
 
 ---
 
 ## 📌 9. Environment Variables
 
-Create a .env file in the root:
+Create a `.env` file in the root:
 
+```env
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_super_secret_key
+```
 
 ---
 
 ## 📌 10. Running the Project
+
+```bash
 # Clone the repo
 git clone https://github.com/Ruthvik2000/DevTinder-Project.git
 cd DevTinder-Project
@@ -639,43 +688,34 @@ npm run dev
 
 # Or normal start
 npm start
-
+```
 
 API will be available at:
 
+```text
 http://localhost:5000/api
+```
 
 ---
 
 ## 📌 11. Future Improvements
 
-Add real-time chat using Socket.io
-
-Add profile pictures (Cloudinary or S3)
-
-Add filters (by skills, experience, location)
-
-Add block/report functionality
-
-Add unit & integration tests (Jest + Supertest)
-
-Add rate limiting & input sanitization for security
+- Add real-time chat using Socket.io  
+- Add profile pictures (Cloudinary or S3)  
+- Add filters (by skills, experience, location)  
+- Add block/report functionality  
+- Add unit & integration tests (Jest + Supertest)  
+- Add rate limiting & input sanitization for security  
 
 ---
 
-##📌 12. What I Learned
+## 📌 12. What I Learned
 
-Structuring a real-world Node.js + Express backend
-
-Designing MongoDB schemas for social/matching apps
-
-Implementing JWT-based authentication
-
-Using middlewares for route protection
-
-Building a like/dislike + match engine
-
-Writing clear API documentation and Postman collections
+- Structuring a real-world Node.js + Express backend  
+- Designing MongoDB schemas for social/matching apps  
+- Implementing JWT-based authentication  
+- Using middlewares for route protection  
+- Building a like/dislike + match engine  
+- Writing clear API documentation and Postman collections  
 
 This project is a solid foundation for building production-level backend services for matching or social apps.
-
