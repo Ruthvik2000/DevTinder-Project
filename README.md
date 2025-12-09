@@ -719,3 +719,10 @@ http://localhost:5000/api
 - Writing clear API documentation and Postman collections  
 
 This project is a solid foundation for building production-level backend services for matching or social apps.
+
+---
+
+🎉 Thank You!
+
+If you like this project, give a ⭐ on GitHub:
+👉 https://github.com/Ruthvik2000/DevTinder-Project
