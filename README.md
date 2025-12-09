@@ -263,14 +263,14 @@ flowchart LR
 
     subgraph Server[DevTinder Backend<br/>(Node.js + Express)]
         AR[Auth Routes<br/>(/register, /login)]
-        UR[User Routes<br/>(/users/feed, /users/:id/like, /users/:id/dislike)]
+        UR[User Routes<br/>(/users/feed,<br/>/users/:id/like,<br/>/users/:id/dislike)]
         MW[Auth Middleware<br/>(JWT Verify)]
         CTRL[Controllers<br/>(auth, user, match)]
     end
 
     subgraph DB[(MongoDB)]
         UCOL[(Users Collection)]
-        MCOL[(Matches Collection - optional)]
+        MCOL[(Matches Collection – optional)]
     end
 
     UI -->|HTTP/JSON (REST)| AR
