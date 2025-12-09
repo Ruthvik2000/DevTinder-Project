@@ -256,29 +256,38 @@ Optionally, we can persist matches in a `Match` model later.
 ## 📌 5. Architecture
 
 ```mermaid
-flowchart LR
-    subgraph Client
-        UI[DevTinder Frontend<br/>(React / Any UI)]
+flowchart TD
+    %% Style Definitions
+    classDef client fill:#E3F2FD,stroke:#1E88E5,stroke-width:2px,color:#0D47A1;
+    classDef server fill:#E8F5E9,stroke:#43A047,stroke-width:2px,color:#1B5E20;
+    classDef db fill:#FBE9E7,stroke:#E64A19,stroke-width:2px,color:#BF360C;
+    classDef process fill:#FFFFFF,stroke:#616161,stroke-width:1.5px,color:#212121;
+
+    %% Client Layer
+    ClientUI["💻 DevTinder Frontend<br/>(React / Any UI)"]:::client
+
+    %% Server Layer
+    subgraph Backend ["🧑‍💻 DevTinder Backend (Node.js + Express)"]
+        AuthRoutes["🔐 Auth Routes<br/>(/register, /login)"]:::server
+        UserRoutes["👥 User Routes<br/>(/users/feed,<br/>/users/:id/like,<br/>/users/:id/dislike)"]:::server
+        Middleware["🛡️ Auth Middleware<br/>(JWT Verify)"]:::server
+        Controllers["⚙️ Controllers<br/>(auth, user, match)"]:::server
     end
 
-    subgraph Server[DevTinder Backend<br/>(Node.js + Express)]
-        AR[Auth Routes<br/>(/register, /login)]
-        UR[User Routes<br/>(/users/feed,<br/>/users/:id/like,<br/>/users/:id/dislike)]
-        MW[Auth Middleware<br/>(JWT Verify)]
-        CTRL[Controllers<br/>(auth, user, match)]
+    %% Database Layer
+    subgraph Database ["🗄️ MongoDB"]
+        UsersCol["📁 Users Collection"]:::db
+        MatchCol["💘 Matches Collection<br/>(Optional)"]:::db
     end
 
-    subgraph DB[(MongoDB)]
-        UCOL[(Users Collection)]
-        MCOL[(Matches Collection – optional)]
-    end
+    %% Connections
+    ClientUI -->|"HTTP Requests (REST)"| AuthRoutes
+    ClientUI -->|"Requests With JWT"| Middleware --> UserRoutes
 
-    UI -->|HTTP/JSON (REST)| AR
-    UI -->|HTTP/JSON (REST with JWT)| MW --> UR
-    AR --> CTRL --> UCOL
-    UR --> CTRL --> UCOL
-    CTRL --> MCOL
-
+    AuthRoutes --> Controllers --> UsersCol
+    UserRoutes --> Controllers
+    Controllers --> UsersCol
+    Controllers --> MatchCol
 
 ---
 
