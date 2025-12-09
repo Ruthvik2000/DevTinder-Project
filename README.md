@@ -255,35 +255,26 @@ Optionally, we can persist matches in a `Match` model later.
 
 ## 📌 5. Architecture
 
+## 📌 5. Architecture
+
 ```mermaid
 flowchart TD
-    %% Style Definitions
-    classDef client fill:#E3F2FD,stroke:#1E88E5,stroke-width:2px,color:#0D47A1;
-    classDef server fill:#E8F5E9,stroke:#43A047,stroke-width:2px,color:#1B5E20;
-    classDef db fill:#FBE9E7,stroke:#E64A19,stroke-width:2px,color:#BF360C;
-    classDef process fill:#FFFFFF,stroke:#616161,stroke-width:1.5px,color:#212121;
+    ClientUI["💻 DevTinder Frontend (React / Any UI)"]
 
-    %% Client Layer
-    ClientUI["💻 DevTinder Frontend<br/>(React / Any UI)"]:::client
-
-    %% Server Layer
     subgraph Backend ["🧑‍💻 DevTinder Backend (Node.js + Express)"]
-        AuthRoutes["🔐 Auth Routes<br/>(/register, /login)"]:::server
-        UserRoutes["👥 User Routes<br/>(/users/feed,<br/>/users/:id/like,<br/>/users/:id/dislike)"]:::server
-        Middleware["🛡️ Auth Middleware<br/>(JWT Verify)"]:::server
-        Controllers["⚙️ Controllers<br/>(auth, user, match)"]:::server
+        AuthRoutes["🔐 Auth Routes (/register, /login)"]
+        UserRoutes["👥 User Routes (/users/feed, /users/:id/like, /users/:id/dislike)"]
+        Middleware["🛡️ Auth Middleware (JWT Verify)"]
+        Controllers["⚙️ Controllers (auth, user, match)"]
     end
 
-    %% Database Layer
     subgraph Database ["🗄️ MongoDB"]
-        UsersCol["📁 Users Collection"]:::db
-        MatchCol["💘 Matches Collection<br/>(Optional)"]:::db
+        UsersCol["📁 Users Collection"]
+        MatchCol["💘 Matches Collection (optional)"]
     end
 
-    %% Connections
-    ClientUI -->|"HTTP Requests (REST)"| AuthRoutes
-    ClientUI -->|"Requests With JWT"| Middleware --> UserRoutes
-
+    ClientUI -->|HTTP (REST)| AuthRoutes
+    ClientUI -->|HTTP + JWT| Middleware --> UserRoutes
     AuthRoutes --> Controllers --> UsersCol
     UserRoutes --> Controllers
     Controllers --> UsersCol
