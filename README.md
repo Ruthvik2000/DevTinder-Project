@@ -81,7 +81,7 @@ I separated routes, controllers, models, and middleware to keep the project scal
 
 ---
 
-## 📌 4. How I Built the Project (Step by Step)
+# 📌 4. How I Built the Project (Step by Step)
 
 ✅ Step 1: Express Server Setup
 
