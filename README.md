@@ -255,24 +255,16 @@ Optionally, we can persist matches in a `Match` model later.
 
 ## 📌 5. Architecture
 
-```mermaid
 flowchart LR
     subgraph Client
         UI[DevTinder Frontend (React / Any UI)]
     end
 
     subgraph Server[DevTinder Backend (Node.js + Express)]
-        AR[Auth Routes
-/register
-/login]
-        UR[User Routes
-/feed
-/:id/like
-/:id/dislike]
-        MW[Auth Middleware
-(JWT Verify)]
-        CTRL[Controllers
-(auth, user, match)]
+        AR[Auth Routes\n/register\n/login]
+        UR[User Routes\n/feed\n/:id/like\n/:id/dislike]
+        MW[Auth Middleware\n(JWT Verify)]
+        CTRL[Controllers\n(auth, user, match)]
     end
 
     subgraph DB[(MongoDB)]
@@ -285,7 +277,7 @@ flowchart LR
     AR --> CTRL --> UCOL
     UR --> CTRL --> UCOL
     CTRL --> MCOL
-```
+
 
 ---
 
