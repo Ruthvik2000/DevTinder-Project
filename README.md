@@ -2,19 +2,15 @@
 
 # 🧑‍💻 DevTinder – Developer Matching Platform
 
-DevTinder is a **MERN-stack** web application that enables developers to **discover, connect, and collaborate—** similar to Tinder, but built specifically for the **developer community**. Users can **create profiles, browse other developers, send connection requests, and manage their matches**.
+DevTinder is a backend project built using **Node.js, Express, and MongoDB**, where developers can discover each other, like/dislike profiles, and get matched when both sides like each other.
 
-This repo provides the backend built with Node.js, Express, and MongoDB, working alongside a React-based frontend to form the full MERN-powered DevTinder platform.
+This README explains the project **step by step exactly as I built it** – architecture, APIs, logic, and how a frontend can talk to it.
 
 ---
 
 ## 📦 Repository
 
-<<<<<<< HEAD
 GitHub Repo:  
-=======
-GitHub Repo:
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 [`https://github.com/Ruthvik2000/DevTinder-Project`](https://github.com/Ruthvik2000/DevTinder-Project)
 
 ---
@@ -30,21 +26,12 @@ DevTinder is inspired by Tinder but customized for **developers**:
 
 While building this project, the focus was on:
 
-<<<<<<< HEAD
 - Clean and modular **Node.js + Express** architecture  
 - Proper **MongoDB schema design**  
 - Production-style **authentication using JWT**  
 - Secure **password hashing using bcrypt**  
 - Implementing **feed, like/dislike and match logic**  
 - Using **middlewares, controllers, and routes** correctly  
-=======
-- Clean and modular **Node.js + Express** architecture
-- Proper **MongoDB schema design**
-- Production-style **authentication using JWT**
-- Secure **password hashing using bcrypt**
-- Implementing **feed, like/dislike and match logic**
-- Using **middlewares, controllers, and routes** correctly
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 ---
 
@@ -133,11 +120,7 @@ mongoose
   });
 ```
 
-<<<<<<< HEAD
 If connection fails, the app exits early.  
-=======
-If connection fails, the app exits early.
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 This guarantees the app doesn't run without DB.
 
 ---
@@ -164,13 +147,8 @@ In `models/User.js`, I designed a schema that represents a developer.
 
 **Swipe system fields:**
 
-<<<<<<< HEAD
 - `likedUsers` → array of user IDs liked by this user  
 - `dislikedUsers` → array of user IDs disliked by this user  
-=======
-- `likedUsers` → array of user IDs liked by this user
-- `dislikedUsers` → array of user IDs disliked by this user
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 This schema is the heart of the matching logic.
 
@@ -182,7 +160,6 @@ I implemented two main routes in `authRoutes.js` and `authController.js`:
 
 #### 🔹 Register
 
-<<<<<<< HEAD
 - Validates required fields  
 - Checks if email already exists  
 - Hashes password using `bcryptjs`  
@@ -195,20 +172,6 @@ I implemented two main routes in `authRoutes.js` and `authController.js`:
 - Verifies password using `bcrypt.compare`  
 - Generates a JWT on success  
 - Returns token + basic user info  
-=======
-- Validates required fields
-- Checks if email already exists
-- Hashes password using `bcryptjs`
-- Saves user into DB
-- Generates a JWT and returns it along with minimal user info
-
-#### 🔹 Login
-
-- Validates email and password
-- Verifies password using `bcrypt.compare`
-- Generates a JWT on success
-- Returns token + basic user info
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 The client uses this token for all protected routes.
 
@@ -218,17 +181,10 @@ The client uses this token for all protected routes.
 
 In `middleware/authMiddleware.js`:
 
-<<<<<<< HEAD
 - Extracts the token from `Authorization: Bearer <token>` header  
 - Verifies the token using `jwt.verify`  
 - If valid, attaches `req.user = { id: <userId> }`  
 - If invalid, returns **401 Unauthorized**  
-=======
-- Extracts the token from `Authorization: Bearer <token>` header
-- Verifies the token using `jwt.verify`
-- If valid, attaches `req.user = { id: <userId> }`
-- If invalid, returns **401 Unauthorized**
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 This middleware is applied to routes like feed, like, dislike.
 
@@ -261,17 +217,10 @@ POST /api/users/:id/like
 
 **Logic:**
 
-<<<<<<< HEAD
 - Add target `id` to `likedUsers` (if not already present)  
 - Check if target user has already liked me  
 - If yes → mark `isMatch = true`  
 - Return JSON:  
-=======
-- Add target `id` to `likedUsers` (if not already present)
-- Check if target user has already liked me
-- If yes → mark `isMatch = true`
-- Return JSON:
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 ```json
 { "message": "Liked", "isMatch": true/false }
@@ -287,13 +236,8 @@ POST /api/users/:id/dislike
 
 **Logic:**
 
-<<<<<<< HEAD
 - Add target `id` to `dislikedUsers` (if not already present)  
 - Return simple success message  
-=======
-- Add target `id` to `dislikedUsers` (if not already present)
-- Return simple success message
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 ---
 
@@ -301,17 +245,10 @@ POST /api/users/:id/dislike
 
 A match is created when:
 
-<<<<<<< HEAD
 - User A likes User B  
 - **and** User B has already liked User A  
 
 This logic is handled inside the like API.  
-=======
-- User A likes User B
-- **and** User B has already liked User A
-
-This logic is handled inside the like API.
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 Optionally, we can persist matches in a `Match` model later.
 
 ---
@@ -319,27 +256,35 @@ Optionally, we can persist matches in a `Match` model later.
 ## 📌 5. Architecture
 
 ```mermaid
-flowchart TD
-
-    ClientUI["💻 DevTinder Frontend"]
-
-    subgraph Backend ["🧑‍💻 DevTinder Backend (Node.js + Express)"]
-        AuthRoutes["🔐 Auth Routes: /register, /login"]
-        UserRoutes["👥 User Routes: /users/feed, /users/:id/like, /users/:id/dislike"]
-        Middleware["🛡️ Auth Middleware (JWT Verify)"]
-        Controllers["⚙️ Controllers: auth, user, match"]
+flowchart LR
+    subgraph Client
+        UI[DevTinder Frontend (React / Any UI)]
     end
 
-    subgraph Database ["🗄️ MongoDB"]
-        UsersCol["📁 Users Collection"]
-        MatchCol["💘 Matches Collection (optional)"]
+    subgraph Server[DevTinder Backend (Node.js + Express)]
+        AR[Auth Routes
+/register
+/login]
+        UR[User Routes
+/feed
+/:id/like
+/:id/dislike]
+        MW[Auth Middleware
+(JWT Verify)]
+        CTRL[Controllers
+(auth, user, match)]
     end
 
-    ClientUI --> AuthRoutes
-    ClientUI --> Middleware --> UserRoutes
-    AuthRoutes --> Controllers --> UsersCol
-    UserRoutes --> Controllers
-    Controllers --> MatchCol
+    subgraph DB[(MongoDB)]
+        UCOL[(Users Collection)]
+        MCOL[(Matches Collection - optional)]
+    end
+
+    UI -->|HTTP/JSON (REST)| AR
+    UI -->|HTTP/JSON (REST, with JWT)| MW --> UR
+    AR --> CTRL --> UCOL
+    UR --> CTRL --> UCOL
+    CTRL --> MCOL
 ```
 
 ---
@@ -358,13 +303,8 @@ http://localhost:5000/api
 
 #### 🔐 Register User
 
-<<<<<<< HEAD
 **URL:** `POST /auth/register`  
 **Auth:** Public  
-=======
-**URL:** `POST /auth/register`
-**Auth:** Public
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 **Request Body:**
 
@@ -398,13 +338,8 @@ http://localhost:5000/api
 
 #### 🔐 Login
 
-<<<<<<< HEAD
 **URL:** `POST /auth/login`  
 **Auth:** Public  
-=======
-**URL:** `POST /auth/login`
-**Auth:** Public
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 **Request Body:**
 
@@ -436,13 +371,8 @@ http://localhost:5000/api
 
 #### 👥 Get Feed
 
-<<<<<<< HEAD
 **URL:** `GET /users/feed`  
 **Auth:** Bearer Token  
-=======
-**URL:** `GET /users/feed`
-**Auth:** Bearer Token
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 **Headers:**
 
@@ -474,13 +404,8 @@ Authorization: Bearer <jwt_token>
 
 #### ❤️ Like a User
 
-<<<<<<< HEAD
 **URL:** `POST /users/:id/like`  
 **Auth:** Bearer Token  
-=======
-**URL:** `POST /users/:id/like`
-**Auth:** Bearer Token
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 **Example:** `POST /users/676def1234abcd/like`
 
@@ -512,13 +437,8 @@ Authorization: Bearer <jwt_token>
 
 #### ❌ Dislike a User
 
-<<<<<<< HEAD
 **URL:** `POST /users/:id/dislike`  
 **Auth:** Bearer Token  
-=======
-**URL:** `POST /users/:id/dislike`
-**Auth:** Bearer Token
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 **Example:** `POST /users/676def1234abcd/dislike`
 
@@ -688,19 +608,11 @@ and paste:
 
 **How to use:**
 
-<<<<<<< HEAD
 - Open Postman  
 - Click **Import** → select this JSON file  
 - Call **Auth – Register**, then **Auth – Login**, copy `token`  
 - Put token into the Postman environment variable `{{token}}`  
 - Use Feed / Like / Dislike requests  
-=======
-- Open Postman
-- Click **Import** → select this JSON file
-- Call **Auth – Register**, then **Auth – Login**, copy `token`
-- Put token into the Postman environment variable `{{token}}`
-- Use Feed / Like / Dislike requests
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 ---
 
@@ -712,22 +624,14 @@ This is a simple React-based plan to pair with DevTinder backend.
 
 **1. RegisterPage**
 
-<<<<<<< HEAD
 - Inputs: name, email, password, skills (comma-separated), role, experienceYears, location, bio  
-=======
-- Inputs: name, email, password, skills (comma-separated), role, experienceYears, location, bio
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 - On submit:
   - `POST /api/auth/register`
   - Save token → redirect to `/feed` or `/login`
 
 **2. LoginPage**
 
-<<<<<<< HEAD
 - Inputs: email, password  
-=======
-- Inputs: email, password
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 - On submit:
   - `POST /api/auth/login`
   - Save token in `localStorage`
@@ -736,15 +640,9 @@ This is a simple React-based plan to pair with DevTinder backend.
 **3. FeedPage**
 
 - On mount:
-<<<<<<< HEAD
   - Call `GET /api/users/feed` with `Authorization: Bearer <token>`  
 - Display one profile card at a time:
   - name, role, skills, experienceYears, location, bio  
-=======
-  - Call `GET /api/users/feed` with `Authorization: Bearer <token>`
-- Display one profile card at a time:
-  - name, role, skills, experienceYears, location, bio
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 - Buttons:
   - ❤️ Like → `POST /api/users/:id/like`
   - ❌ Dislike → `POST /api/users/:id/dislike`
@@ -753,20 +651,12 @@ This is a simple React-based plan to pair with DevTinder backend.
 
 **4. Navbar**
 
-<<<<<<< HEAD
 - Shows logged-in user’s name  
-=======
-- Shows logged-in user’s name
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 - Logout button → clears token and redirects to `/login`
 
 **5. ProtectedRoute**
 
-<<<<<<< HEAD
 - Wrapper that checks if token exists in `localStorage`  
-=======
-- Wrapper that checks if token exists in `localStorage`
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 - If missing → redirect to `/login`
 
 ---
@@ -810,41 +700,23 @@ http://localhost:5000/api
 
 ## 📌 11. Future Improvements
 
-<<<<<<< HEAD
 - Add real-time chat using Socket.io  
 - Add profile pictures (Cloudinary or S3)  
 - Add filters (by skills, experience, location)  
 - Add block/report functionality  
 - Add unit & integration tests (Jest + Supertest)  
 - Add rate limiting & input sanitization for security  
-=======
-- Add real-time chat using Socket.io
-- Add profile pictures (Cloudinary or S3)
-- Add filters (by skills, experience, location)
-- Add block/report functionality
-- Add unit & integration tests (Jest + Supertest)
-- Add rate limiting & input sanitization for security
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 ---
 
 ## 📌 12. What I Learned
 
-<<<<<<< HEAD
 - Structuring a real-world Node.js + Express backend  
 - Designing MongoDB schemas for social/matching apps  
 - Implementing JWT-based authentication  
 - Using middlewares for route protection  
 - Building a like/dislike + match engine  
 - Writing clear API documentation and Postman collections  
-=======
-- Structuring a real-world Node.js + Express backend
-- Designing MongoDB schemas for social/matching apps
-- Implementing JWT-based authentication
-- Using middlewares for route protection
-- Building a like/dislike + match engine
-- Writing clear API documentation and Postman collections
->>>>>>> c97873ceda6b5a3df70b430cc6ffb85a0c60d1dd
 
 This project is a solid foundation for building production-level backend services for matching or social apps.
 
