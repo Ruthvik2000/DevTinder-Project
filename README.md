@@ -277,6 +277,7 @@ flowchart TD
     AuthRoutes --> Controllers --> UsersCol
     UserRoutes --> Controllers
     Controllers --> MatchCol
+```
 
 ---
 
