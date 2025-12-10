@@ -255,29 +255,30 @@ Optionally, we can persist matches in a `Match` model later.
 
 ## 📌 5. Architecture
 
-flowchart LR
-    subgraph Client
-        UI[DevTinder Frontend (React / Any UI)]
+```mermaid
+flowchart TD
+
+    ClientUI["💻 DevTinder Frontend"]
+
+    subgraph Backend ["🧑‍💻 DevTinder Backend (Node.js + Express)"]
+        AuthRoutes["🔐 Auth Routes: /register, /login"]
+        UserRoutes["👥 User Routes: /users/feed, /users/:id/like, /users/:id/dislike"]
+        Middleware["🛡️ Auth Middleware (JWT Verify)"]
+        Controllers["⚙️ Controllers: auth, user, match"]
     end
 
-    subgraph Server[DevTinder Backend (Node.js + Express)]
-        AR[Auth Routes\n/register\n/login]
-        UR[User Routes\n/feed\n/:id/like\n/:id/dislike]
-        MW[Auth Middleware\n(JWT Verify)]
-        CTRL[Controllers\n(auth, user, match)]
+    subgraph Database ["🗄️ MongoDB"]
+        UsersCol["📁 Users Collection"]
+        MatchCol["💘 Matches Collection (optional)"]
     end
 
-    subgraph DB[(MongoDB)]
-        UCOL[(Users Collection)]
-        MCOL[(Matches Collection - optional)]
-    end
+    ClientUI --> AuthRoutes
+    ClientUI --> Middleware --> UserRoutes
+    AuthRoutes --> Controllers --> UsersCol
+    UserRoutes --> Controllers
+    Controllers --> MatchCol
 
-    UI -->|HTTP/JSON (REST)| AR
-    UI -->|HTTP/JSON (REST, with JWT)| MW --> UR
-    AR --> CTRL --> UCOL
-    UR --> CTRL --> UCOL
-    CTRL --> MCOL
-
+---
 
 ---
 
